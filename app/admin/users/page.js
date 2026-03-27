@@ -93,7 +93,7 @@ export default function AdminUsers() {
       <div className="space-y-3">
         {filteredUsers.map(user => (
           <div key={user.id} className={`glass-card p-4 flex items-center gap-4 ${user.banned ? 'opacity-50' : ''}`}>
-            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-violet-600 to-pink-500 flex-shrink-0 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full overflow-hidden bg-gradient-to-br from-emerald-500 to-cyan-400 flex-shrink-0 flex items-center justify-center">
               {user.image ? <img src={user.image} alt="" className="w-full h-full object-cover" /> : <span className="text-white font-bold">{user.name?.charAt(0)}</span>}
             </div>
             

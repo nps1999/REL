@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import {
   LayoutDashboard, Package, Tag, ShoppingBag, Users,
-  Star, Settings, Percent, ArrowRight, Shield, Menu, X
+  Star, Settings, Percent, ArrowRight, Shield, Menu, X, KeyRound
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -14,6 +14,7 @@ const LOGO_URL = 'https://customer-assets.emergentagent.com/job_5bfed863-cc5b-46
 const navItems = [
   { href: '/admin', label: 'لوحة التحكم', icon: LayoutDashboard },
   { href: '/admin/products', label: 'المنتجات', icon: Package },
+  { href: '/admin/inventory', label: 'المخزون', icon: KeyRound },
   { href: '/admin/categories', label: 'التصنيفات', icon: Tag },
   { href: '/admin/orders', label: 'الطلبات', icon: ShoppingBag },
   { href: '/admin/users', label: 'المستخدمون', icon: Users },
@@ -45,7 +46,7 @@ export default function AdminLayout({ children }) {
   if (session?.user?.role !== 'admin') return null
   
   return (
-    <div className="min-h-screen flex bg-[#050508]">
+    <div className="min-h-screen flex bg-[#0B0F14]">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
@@ -54,14 +55,14 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <aside className={`fixed top-0 right-0 h-full w-64 z-50 flex flex-col transition-transform duration-300 ${
         sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
-      }`} style={{ background: 'rgba(5, 5, 12, 0.95)', backdropFilter: 'blur(30px)', borderLeft: '1px solid rgba(139, 92, 246, 0.15)' }}>
+      }`} style={{ background: 'rgba(17, 24, 39, 0.95)', backdropFilter: 'blur(30px)', borderLeft: '1px solid #1F2937' }}>
         
         {/* Logo */}
         <div className="p-5 border-b border-purple-500/10">
           <div className="flex items-center gap-3">
-            <img src={LOGO_URL} alt="PRESTIGE" className="h-10 w-10 object-contain" />
+            <img src={LOGO_URL} alt="RELOAD STORE" className="h-10 w-10 object-contain" />
             <div>
-              <div className="text-sm font-black gradient-text">PRESTIGE</div>
+              <div className="text-sm font-black gradient-text">RELOAD STORE</div>
               <div className="text-xs text-gray-500">لوحة التحكم</div>
             </div>
             <button onClick={() => setSidebarOpen(false)} className="mr-auto text-gray-500 lg:hidden">
@@ -77,7 +78,7 @@ export default function AdminLayout({ children }) {
               {session?.user?.image ? (
                 <img src={session.user.image} alt="" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center">
+                <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center">
                   <Shield size={16} className="text-white" />
                 </div>
               )}

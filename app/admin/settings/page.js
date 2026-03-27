@@ -279,7 +279,7 @@ export default function AdminSettings() {
                 </div>
                 <button
                   onClick={() => setSettings(p => ({ ...p, festivities: { ...p.festivities, [k]: !p.festivities?.[k] } }))}
-                  className={`w-12 h-6 rounded-full transition-all relative ${settings.festivities?.[k] ? 'bg-gradient-to-r from-violet-600 to-pink-500' : 'bg-gray-600'}`}
+                  className={`w-12 h-6 rounded-full transition-all relative ${settings.festivities?.[k] ? 'bg-gradient-to-r from-emerald-500 to-cyan-400' : 'bg-gray-600'}`}
                 >
                   <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${settings.festivities?.[k] ? 'right-1' : 'left-1'}`} />
                 </button>

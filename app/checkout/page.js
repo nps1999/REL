@@ -249,6 +249,7 @@ export default function CheckoutPage() {
           image: i.image,
           fileUrl: i.fileUrl,
           selectedOption: i.selectedOption,
+          fulfillmentMode: i.fulfillmentMode || 'manual',
           customizations: i.customizations || {},
         })),
         subtotal,
@@ -649,7 +650,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 mb-5 max-h-60 overflow-y-auto">
                 {cart.map(item => (
                   <div key={`${item.id}-${item.optionId || ''}`} className="flex gap-3">
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-[#0d0d1a] flex-shrink-0">
+                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-[#111827] flex-shrink-0">
                       {item.image ? (
                         <img src={item.image} alt="" className="w-full h-full object-cover" />
                       ) : (

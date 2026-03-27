@@ -10,6 +10,7 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [deliverFiles, setDeliverFiles] = useState([])
+  const [deliverCodes, setDeliverCodes] = useState([])
   const [giftData, setGiftData] = useState({ name: '', fileUrl: '' })
   const [delivering, setDelivering] = useState(false)
   const [toast, setToast] = useState(null)
@@ -25,6 +26,7 @@ export default function AdminOrders() {
   const openOrder = (order) => {
     setSelectedOrder(order)
     setDeliverFiles(order.items?.map(item => ({ productId: item.id, productTitle: item.title, fileUrl: item.selectedOption?.fileUrl || item.fileUrl || '' })) || [])
+    setDeliverCodes(order.items?.map(item => ({ productId: item.id, productTitle: item.title, codesText: '' })) || [])
     setGiftData({ name: '', fileUrl: '' })
   }
   
@@ -38,6 +40,13 @@ export default function AdminOrders() {
         body: JSON.stringify({
           action: 'deliver',
           files: deliverFiles,
+          codes: deliverCodes
+            .map(entry => ({
+              productId: entry.productId,
+              productTitle: entry.productTitle,
+              codes: String(entry.codesText || '').split(/\r?\n/).map(c => c.trim()).filter(Boolean),
+            }))
+            .filter(entry => entry.codes.length > 0),
           gift: giftData.name ? giftData : null,
         }),
       })
@@ -403,12 +412,19 @@ export default function AdminOrders() {
                           </div>
                         )}
                         
-                        {item.customizations.selectedOption && (
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-gray-400">النمط المحدد:</span>
-                            <span className="text-purple-300">{item.customizations.selectedOption.name}</span>
-                          </div>
-                        )}
+                      </div>
+                    )}
+
+                    {Array.isArray(selectedOrder.deliveredCodes) && selectedOrder.deliveredCodes.filter(code => code.productId === item.id).length > 0 && (
+                      <div className="px-3 pb-3 border-t border-white/5 pt-2">
+                        <p className="text-emerald-300 text-xs font-medium mb-2">الأكواد المسلّمة:</p>
+                        <div className="space-y-1">
+                          {selectedOrder.deliveredCodes.filter(code => code.productId === item.id).map((codeItem, codeIndex) => (
+                            <div key={`${codeItem.codeId || codeItem.code}-${codeIndex}`} className="text-xs font-mono bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-2 py-1 text-emerald-300" dir="ltr">
+                              {codeItem.code}
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -432,6 +448,26 @@ export default function AdminOrders() {
                       />
                     </div>
                   ))}
+
+                  {deliverCodes.map((entry, i) => {
+                    const isPendingStock = Array.isArray(selectedOrder.stockPendingItems)
+                      ? selectedOrder.stockPendingItems.some(p => p.productId === entry.productId || p.productTitle === entry.productTitle)
+                      : false
+                    if (!isPendingStock) return null
+                    return (
+                      <div key={`codes-${i}`}>
+                        <label className="text-gray-400 text-xs mb-1 block">{entry.productTitle} (أكواد التسليم)</label>
+                        <textarea
+                          value={entry.codesText}
+                          onChange={e => setDeliverCodes(prev => prev.map((c, ci) => ci === i ? { ...c, codesText: e.target.value } : c))}
+                          rows={3}
+                          className="glass-input text-xs resize-none"
+                          placeholder={'كل كود بسطر\nCODE-1\nCODE-2'}
+                          dir="ltr"
+                        />
+                      </div>
+                    )
+                  })}
                   
                   {/* Gift */}
                   <div className="border-t border-white/10 pt-3">

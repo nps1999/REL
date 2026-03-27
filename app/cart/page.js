@@ -61,7 +61,7 @@ export default function CartPage() {
             <div className="lg:col-span-2 space-y-4">
               {cart.map(item => (
                 <div key={`${item.id}-${item.optionId || ''}`} className="glass-card p-4 flex gap-4">
-                  <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#0d0d1a] flex-shrink-0">
+                  <div className="w-20 h-20 rounded-xl overflow-hidden bg-[#111827] flex-shrink-0">
                     {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Sparkles size={24} className="text-purple-500/30" /></div>}
                   </div>
                   <div className="flex-1">

@@ -6,7 +6,7 @@ import Link from 'next/link'
 import CategoriesNav from '@/components/CategoriesNav'
 import {
   Heart, ShoppingCart, Star, Share2, Check, Sparkles, Package, X,
-  Upload, Palette, Search, User, LogOut, Shield, Award, ArrowRight,
+  Search, User, LogOut, Shield, Award, ArrowRight,
   Plus, Minus, Menu, ChevronLeft, Bell, Zap
 } from 'lucide-react'
 
@@ -108,7 +108,7 @@ function Header({ cart, wishlistCount, session, onCartOpen, settings }) {
     <header className="glass-header sticky top-0 z-50" data-testid="product-header">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center gap-2 sm:gap-4">
         <Link href="/" className="flex-shrink-0">
-          <img src={logo} alt="PRESTIGE DESIGNS" className="h-9 sm:h-12 w-auto object-contain" />
+          <img src={logo} alt="RELOAD STORE" className="h-9 sm:h-12 w-auto object-contain" />
         </Link>
 
         <form onSubmit={handleSearch} className="hidden md:block flex-1 max-w-md mx-auto">
@@ -181,7 +181,7 @@ function CartSidebar({ cart, onClose, onRemove, onQuantityChange }) {
             <div className="space-y-4 flex-1 overflow-y-auto mb-6">
               {cart.map(item => (
                 <div key={`${item.id}-${item.optionId || ''}`} className="glass p-3 flex gap-3">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#0d0d1a] flex-shrink-0">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#111827] flex-shrink-0">
                     {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Sparkles size={20} className="text-purple-500/40" /></div>}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -257,7 +257,7 @@ function NotificationBanner({ onSubscribe }) {
       <div className="absolute inset-0 bg-gradient-to-l from-purple-600/10 via-transparent to-pink-600/10" />
       <div className="relative flex flex-col sm:flex-row items-center gap-4">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-purple-500/30">
             <Bell size={22} className="text-white" />
           </div>
           <div>
@@ -310,14 +310,14 @@ function RelatedProducts({ currentProduct, onAddToCart }) {
           return (
             <div key={product._id || product.id} className="product-card group" data-testid={`related-${product.slug}`}>
               <Link href={`/products/${product.slug || product._id}`}>
-                <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#0d0d1a]">
+                <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#111827]">
                   {product.image ? (
                     <img src={product.image} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center"><Sparkles size={30} className="text-purple-500/40" /></div>
                   )}
                   {product.discount > 0 && <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-{product.discount}%</div>}
-                  {product.featured && <div className="absolute top-2 left-2 bg-gradient-to-r from-violet-600 to-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5"><Zap size={8} />مميز</div>}
+                  {product.featured && <div className="absolute top-2 left-2 bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5"><Zap size={8} />مميز</div>}
                 </div>
               </Link>
               <div className="p-3">
@@ -331,7 +331,7 @@ function RelatedProducts({ currentProduct, onAddToCart }) {
                     <span className="text-green-400 font-bold text-sm sm:text-base">{product.price === 0 ? 'مجاني' : `$${product.price?.toFixed(2)}`}</span>
                   )}
                   <button onClick={(e) => { e.preventDefault(); onAddToCart(product) }}
-                    className="opacity-0 group-hover:opacity-100 px-2.5 py-1.5 rounded-full bg-gradient-to-r from-violet-600 to-purple-500 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-1">
+                    className="opacity-0 group-hover:opacity-100 px-2.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-1">
                     <Plus size={10} /> سلة
                   </button>
                 </div>
@@ -353,10 +353,10 @@ function Footer({ settings }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="PRESTIGE DESIGNS" className="h-10 sm:h-12 w-auto object-contain" />
-              <h2 className="text-lg sm:text-xl font-bold" style={{ background: 'linear-gradient(135deg, #9333ea 0%, #c026d3 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PRESTIGE DESIGNS</h2>
+              <img src={logo} alt="RELOAD STORE" className="h-10 sm:h-12 w-auto object-contain" />
+              <h2 className="text-lg sm:text-xl font-bold" style={{ background: 'linear-gradient(135deg, #00FFAF 0%, #00FFD5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RELOAD STORE</h2>
             </div>
-            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">وجهة صناع المحتوى الأولى، نمزج السحر بالفن ليرتقي لذوقك الرفيع.</p>
+            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">RELOAD STORE</p>
           </div>
           <div>
             <h3 className="text-white font-bold mb-3 sm:mb-4 text-sm">روابط سريعة</h3>
@@ -376,7 +376,7 @@ function Footer({ settings }) {
           </div>
         </div>
         <div className="border-t border-white/5 pt-4 sm:pt-6">
-          <p className="text-gray-500 text-xs sm:text-sm text-center">&copy; {year} PRESTIGE DESIGNS. جميع الحقوق محفوظة.</p>
+          <p className="text-gray-500 text-xs sm:text-sm text-center">&copy; {year} RELOAD STORE. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>
@@ -397,13 +397,10 @@ export default function ProductPage() {
   const [selectedOption, setSelectedOption] = useState(null)
   const [inWishlist, setInWishlist] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
-  const [customizations, setCustomizations] = useState({})
   const [toast, setToast] = useState(null)
   const [cart, setCart] = useState([])
   const [wishlistIds, setWishlistIds] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
-  const [uploadingLogo, setUploadingLogo] = useState(false)
-  const [logoPreview, setLogoPreview] = useState(null)
 
   const showToast = useCallback((msg, type = 'success') => { setToast({ msg, type, id: Date.now() }) }, [])
 
@@ -451,28 +448,6 @@ export default function ProductPage() {
     }).catch(() => router.push('/products')).finally(() => setLoading(false))
   }, [slug, session, router])
 
-  const handleLogoUpload = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
-    if (!allowedTypes.includes(file.type)) { showToast('نوع الملف غير مدعوم. يرجى رفع صورة', 'error'); return }
-    if (file.size > 10 * 1024 * 1024) { showToast('حجم الملف كبير جداً. الحد الأقصى 10MB', 'error'); return }
-    const reader = new FileReader()
-    reader.onload = (ev) => setLogoPreview(ev.target.result)
-    reader.readAsDataURL(file)
-    setUploadingLogo(true)
-    try {
-      const formData = new FormData()
-      formData.append('file', file)
-      formData.append('folder', 'logos')
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
-      const data = await res.json()
-      if (data.success && data.url) { setCustomizations(prev => ({ ...prev, logoUrl: data.url, logoFileName: file.name })); showToast('تم رفع الشعار بنجاح!') }
-      else { showToast(data.error || 'فشل رفع الشعار', 'error'); setLogoPreview(null) }
-    } catch { showToast('حدث خطأ أثناء رفع الشعار', 'error'); setLogoPreview(null) }
-    finally { setUploadingLogo(false) }
-  }
-
   const handleAddToCart = () => {
     if (!product) return
     const price = product.discount ? product.price * (1 - product.discount / 100) : product.price
@@ -484,16 +459,11 @@ export default function ProductPage() {
       originalPrice: product.price,
       image: product.image,
       quantity: 1,
+      fulfillmentMode: product.fulfillmentMode || 'manual',
       fileUrl: selectedOption?.fileUrl || product.fileUrl,
       optionId: selectedOption?.id || null,
       selectedOptionName: selectedOption?.name || null,
-      customizations: {
-        logoUrl: customizations.logoUrl || '',
-        logoFileName: customizations.logoFileName || '',
-        primaryColor: customizations.primaryColor || '',
-        secondaryColor: customizations.secondaryColor || '',
-        notes: customizations.notes || '',
-      },
+      customizations: {},
     }
     setCart(prev => {
       const key = `${cartItem.id}-${selectedOption?.id || ''}`
@@ -518,7 +488,7 @@ export default function ProductPage() {
         return prev.map(i => i.id === (relProduct._id || relProduct.id) ? { ...i, quantity: i.quantity + 1 } : i)
       }
       showToast('تمت الإضافة للسلة!')
-      return [...prev, { id: relProduct._id || relProduct.id, slug: relProduct.slug, title: relProduct.title, price, image: relProduct.image, quantity: 1, fileUrl: relProduct.fileUrl }]
+      return [...prev, { id: relProduct._id || relProduct.id, slug: relProduct.slug, title: relProduct.title, price, image: relProduct.image, quantity: 1, fulfillmentMode: relProduct.fulfillmentMode || 'manual', fileUrl: relProduct.fileUrl }]
     })
   }
 
@@ -541,12 +511,10 @@ export default function ProductPage() {
     else { navigator.clipboard.writeText(window.location.href); showToast('تم نسخ الرابط!', 'info') }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#050508]"><div className="text-center"><div className="spinner mx-auto mb-4" /><p className="text-purple-400 font-medium">جاري التحميل...</p></div></div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F14]"><div className="text-center"><div className="spinner mx-auto mb-4" /><p className="text-purple-400 font-medium">جاري التحميل...</p></div></div>
   if (!product) return null
 
   const discountPrice = product.discount ? product.price * (1 - product.discount / 100) : null
-  const hasCustomizations = product.customizations && (product.customizations.logoUpload?.enabled || product.customizations.primaryColor?.enabled || product.customizations.secondaryColor?.enabled || product.customizations.notes?.enabled || (product.customizations.options?.enabled && product.customizations.options?.items?.length > 0))
-
   return (
     <div className="min-h-screen bg-grid" data-testid="product-page">
       {toast && <Toast key={toast.id} message={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
@@ -564,17 +532,7 @@ export default function ProductPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-12" data-testid="product-layout">
-          <div className="space-y-4 sm:space-y-6 order-1">
-            <div className="glass-card overflow-hidden rounded-xl sm:rounded-2xl" data-testid="product-image-container">
-              {product.image ? <img src={product.image} alt={product.title} className="w-full aspect-square object-cover" /> : <div className="w-full aspect-square flex items-center justify-center bg-[#0d0d1a]"><Sparkles size={60} className="text-purple-500/30" /></div>}
-            </div>
-            <div className="glass-card p-4 sm:p-6" data-testid="product-description">
-              <h3 className="text-white font-bold mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base"><Sparkles size={16} className="text-purple-400" />وصف المنتج</h3>
-              <div className="text-gray-300 text-xs sm:text-sm leading-relaxed prose-invert whitespace-pre-line" dangerouslySetInnerHTML={{ __html: product.description || 'لا يوجد وصف متاح' }} />
-            </div>
-          </div>
-
-          <div className="space-y-4 sm:space-y-6 order-2">
+          <div className="space-y-4 sm:space-y-6 order-2 lg:order-1">
             <div data-testid="product-info">
               <h1 className="text-xl sm:text-3xl font-black text-white mb-3 sm:mb-4">{product.title}</h1>
               <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -591,60 +549,10 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {product.youtubeUrl && (
-              <div className="glass-card overflow-hidden rounded-xl sm:rounded-2xl" data-testid="product-youtube">
-                <div className="aspect-video"><iframe src={`https://www.youtube.com/embed/${extractYouTubeId(product.youtubeUrl)}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Product Video" /></div>
-              </div>
-            )}
-
-            {hasCustomizations && (
-              <div className="glass-card p-4 sm:p-5 space-y-4" data-testid="product-customizations">
-                <h3 className="text-white font-bold text-sm flex items-center gap-2"><Palette size={16} className="text-purple-400" />التخصيصات</h3>
-
-                {product.customizations.options?.enabled && product.customizations.options?.items?.length > 0 && (
-                  <div>
-                    <label className="text-gray-400 text-xs mb-2 block">اختر الخيار</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {product.customizations.options.items.map(opt => (
-                        <button key={opt.id} onClick={() => setSelectedOption(selectedOption?.id === opt.id ? null : opt)}
-                          className={`p-2 sm:p-2.5 rounded-xl text-xs sm:text-sm transition-all border ${selectedOption?.id === opt.id ? 'border-purple-500 bg-purple-500/20 text-purple-300' : 'border-white/10 bg-white/5 text-gray-300 hover:border-purple-400/40'}`} data-testid={`option-${opt.id}`}>
-                          {opt.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {product.customizations.logoUpload?.enabled && (
-                  <div data-testid="logo-upload-section">
-                    <label className="text-gray-400 text-xs mb-2 block flex items-center gap-1"><Upload size={12} />رفع الشعار</label>
-                    <div className="space-y-3">
-                      <label className={`flex items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border-2 border-dashed cursor-pointer transition-all ${uploadingLogo ? 'border-purple-500/50 bg-purple-500/10' : 'border-white/15 hover:border-purple-500/40 hover:bg-white/5'}`}>
-                        <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" disabled={uploadingLogo} data-testid="logo-file-input" />
-                        {uploadingLogo ? <><div className="spinner w-5 h-5" /><span className="text-purple-300 text-xs sm:text-sm">جاري رفع الشعار...</span></> : <><Upload size={18} className="text-purple-400" /><span className="text-gray-300 text-xs sm:text-sm">اضغط لاختيار صورة الشعار</span></>}
-                      </label>
-                      {(logoPreview || customizations.logoUrl) && (
-                        <div className="flex items-center gap-3 glass p-3 rounded-xl" data-testid="logo-preview">
-                          <img src={logoPreview || customizations.logoUrl} alt="الشعار" className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-purple-500/30" />
-                          <div className="flex-1 min-w-0"><p className="text-green-400 text-xs flex items-center gap-1"><Check size={12} />تم رفع الشعار</p><p className="text-gray-500 text-[10px] sm:text-xs truncate">{customizations.logoFileName || 'شعار'}</p></div>
-                          <button onClick={() => { setLogoPreview(null); setCustomizations(prev => ({ ...prev, logoUrl: '', logoFileName: '' })) }} className="text-gray-500 hover:text-red-400 transition-colors"><X size={14} /></button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {product.customizations.primaryColor?.enabled && (
-                  <div><label className="text-gray-400 text-xs mb-2 block">اللون الأساسي</label><div className="flex items-center gap-3"><input type="color" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg cursor-pointer bg-transparent border-0" value={customizations.primaryColor || '#7c3aed'} onChange={e => setCustomizations(prev => ({ ...prev, primaryColor: e.target.value }))} data-testid="primary-color-input" /><span className="text-gray-300 text-xs sm:text-sm">{customizations.primaryColor || '#7c3aed'}</span></div></div>
-                )}
-                {product.customizations.secondaryColor?.enabled && (
-                  <div><label className="text-gray-400 text-xs mb-2 block">اللون الثانوي</label><div className="flex items-center gap-3"><input type="color" className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg cursor-pointer bg-transparent border-0" value={customizations.secondaryColor || '#ec4899'} onChange={e => setCustomizations(prev => ({ ...prev, secondaryColor: e.target.value }))} data-testid="secondary-color-input" /><span className="text-gray-300 text-xs sm:text-sm">{customizations.secondaryColor || '#ec4899'}</span></div></div>
-                )}
-                {product.customizations.notes?.enabled && (
-                  <div><label className="text-gray-400 text-xs mb-2 block">ملاحظات مهمة</label><textarea placeholder="أدخل ملاحظاتك هنا..." className="glass-input text-xs sm:text-sm resize-none" rows={3} value={customizations.notes || ''} onChange={e => setCustomizations(prev => ({ ...prev, notes: e.target.value }))} data-testid="notes-input" /></div>
-                )}
-              </div>
-            )}
+            <div className="glass-card p-4 sm:p-6" data-testid="product-description">
+              <h3 className="text-white font-bold mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base"><Sparkles size={16} className="text-purple-400" />وصف المنتج</h3>
+              <div className="text-gray-300 text-xs sm:text-sm leading-relaxed prose-invert whitespace-pre-line" dangerouslySetInnerHTML={{ __html: product.description || 'لا يوجد وصف متاح' }} />
+            </div>
 
             <div className="space-y-3" data-testid="product-actions">
               <button onClick={handleAddToCart} className={`btn-primary w-full py-3 sm:py-4 flex items-center justify-center gap-2 sm:gap-3 text-base sm:text-lg ${addedToCart ? 'opacity-80' : ''}`} data-testid="add-to-cart-btn">
@@ -654,10 +562,16 @@ export default function ProductPage() {
                 <button onClick={handleToggleWishlist} className={`flex-1 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl border transition-all flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium ${inWishlist ? 'bg-pink-500/20 border-pink-500/40 text-pink-400' : 'border-white/10 bg-white/5 text-gray-300 hover:border-pink-400/40'}`} data-testid="wishlist-toggle-btn">
                   <Heart size={14} className={inWishlist ? 'fill-current' : ''} />{inWishlist ? 'في المفضلة' : 'إضافة للمفضلة'}
                 </button>
-                <button onClick={handleShare} className="py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 text-gray-300 hover:border-purple-400/40 transition-all flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" data-testid="share-btn">
+                <button onClick={handleShare} className="py-2.5 sm:py-3 px-3 sm:px-5 rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 text-gray-300 hover:border-emerald-400/40 transition-all flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm" data-testid="share-btn">
                   <Share2 size={14} />مشاركة
                 </button>
               </div>
+            </div>
+          </div>
+
+          <div className="order-1 lg:order-2">
+            <div className="glass-card overflow-hidden rounded-xl sm:rounded-2xl" data-testid="product-image-container">
+              {product.image ? <img src={product.image} alt={product.title} className="w-full aspect-square object-cover" /> : <div className="w-full aspect-square flex items-center justify-center bg-[#111827]"><Sparkles size={60} className="text-purple-500/30" /></div>}
             </div>
           </div>
         </div>
@@ -675,7 +589,7 @@ export default function ProductPage() {
               {reviews.map(review => (
                 <div key={review.id || review._id} className="border-b border-white/5 pb-3 sm:pb-4 last:border-0">
                   <div className="flex items-start gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white font-bold text-xs sm:text-sm flex-shrink-0 overflow-hidden">{review.userImage ? <img src={review.userImage} alt="" className="w-full h-full object-cover" /> : review.userName?.charAt(0) || 'ع'}</div>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs sm:text-sm flex-shrink-0 overflow-hidden">{review.userImage ? <img src={review.userImage} alt="" className="w-full h-full object-cover" /> : review.userName?.charAt(0) || 'ع'}</div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1"><span className="text-white font-medium text-xs sm:text-sm">{review.userName || 'مستخدم'}</span><StarRating rating={review.rating} size={12} /></div>
                       <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">{review.text}</p>
@@ -691,10 +605,4 @@ export default function ProductPage() {
       <Footer settings={settings} />
     </div>
   )
-}
-
-function extractYouTubeId(url) {
-  if (!url) return ''
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?#]+)/)
-  return match ? match[1] : url
 }
