@@ -108,7 +108,7 @@ function Header({ cart, wishlistCount, session, onCartOpen, settings }) {
     <header className="glass-header sticky top-0 z-50" data-testid="product-header">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center gap-2 sm:gap-4">
         <Link href="/" className="flex-shrink-0">
-          <img src={logo} alt="PRESTIGE DESIGNS" className="h-9 sm:h-12 w-auto object-contain" />
+          <img src={logo} alt="RELOAD STORE" className="h-9 sm:h-12 w-auto object-contain" />
         </Link>
 
         <form onSubmit={handleSearch} className="hidden md:block flex-1 max-w-md mx-auto">
@@ -181,7 +181,7 @@ function CartSidebar({ cart, onClose, onRemove, onQuantityChange }) {
             <div className="space-y-4 flex-1 overflow-y-auto mb-6">
               {cart.map(item => (
                 <div key={`${item.id}-${item.optionId || ''}`} className="glass p-3 flex gap-3">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#0d0d1a] flex-shrink-0">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#111827] flex-shrink-0">
                     {item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Sparkles size={20} className="text-purple-500/40" /></div>}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -257,7 +257,7 @@ function NotificationBanner({ onSubscribe }) {
       <div className="absolute inset-0 bg-gradient-to-l from-purple-600/10 via-transparent to-pink-600/10" />
       <div className="relative flex flex-col sm:flex-row items-center gap-4">
         <div className="flex items-center gap-3 flex-shrink-0">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-purple-500/30">
             <Bell size={22} className="text-white" />
           </div>
           <div>
@@ -310,14 +310,14 @@ function RelatedProducts({ currentProduct, onAddToCart }) {
           return (
             <div key={product._id || product.id} className="product-card group" data-testid={`related-${product.slug}`}>
               <Link href={`/products/${product.slug || product._id}`}>
-                <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#0d0d1a]">
+                <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#111827]">
                   {product.image ? (
                     <img src={product.image} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center"><Sparkles size={30} className="text-purple-500/40" /></div>
                   )}
                   {product.discount > 0 && <div className="absolute top-2 right-2 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-{product.discount}%</div>}
-                  {product.featured && <div className="absolute top-2 left-2 bg-gradient-to-r from-violet-600 to-purple-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5"><Zap size={8} />مميز</div>}
+                  {product.featured && <div className="absolute top-2 left-2 bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5"><Zap size={8} />مميز</div>}
                 </div>
               </Link>
               <div className="p-3">
@@ -331,7 +331,7 @@ function RelatedProducts({ currentProduct, onAddToCart }) {
                     <span className="text-green-400 font-bold text-sm sm:text-base">{product.price === 0 ? 'مجاني' : `$${product.price?.toFixed(2)}`}</span>
                   )}
                   <button onClick={(e) => { e.preventDefault(); onAddToCart(product) }}
-                    className="opacity-0 group-hover:opacity-100 px-2.5 py-1.5 rounded-full bg-gradient-to-r from-violet-600 to-purple-500 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-1">
+                    className="opacity-0 group-hover:opacity-100 px-2.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-[10px] font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-1">
                     <Plus size={10} /> سلة
                   </button>
                 </div>
@@ -353,10 +353,10 @@ function Footer({ settings }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-8">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="PRESTIGE DESIGNS" className="h-10 sm:h-12 w-auto object-contain" />
-              <h2 className="text-lg sm:text-xl font-bold" style={{ background: 'linear-gradient(135deg, #9333ea 0%, #c026d3 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PRESTIGE DESIGNS</h2>
+              <img src={logo} alt="RELOAD STORE" className="h-10 sm:h-12 w-auto object-contain" />
+              <h2 className="text-lg sm:text-xl font-bold" style={{ background: 'linear-gradient(135deg, #00FFAF 0%, #00FFD5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RELOAD STORE</h2>
             </div>
-            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">وجهة صناع المحتوى الأولى، نمزج السحر بالفن ليرتقي لذوقك الرفيع.</p>
+            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">RELOAD STORE</p>
           </div>
           <div>
             <h3 className="text-white font-bold mb-3 sm:mb-4 text-sm">روابط سريعة</h3>
@@ -376,7 +376,7 @@ function Footer({ settings }) {
           </div>
         </div>
         <div className="border-t border-white/5 pt-4 sm:pt-6">
-          <p className="text-gray-500 text-xs sm:text-sm text-center">&copy; {year} PRESTIGE DESIGNS. جميع الحقوق محفوظة.</p>
+          <p className="text-gray-500 text-xs sm:text-sm text-center">&copy; {year} RELOAD STORE. جميع الحقوق محفوظة.</p>
         </div>
       </div>
     </footer>
@@ -484,6 +484,7 @@ export default function ProductPage() {
       originalPrice: product.price,
       image: product.image,
       quantity: 1,
+      fulfillmentMode: product.fulfillmentMode || 'manual',
       fileUrl: selectedOption?.fileUrl || product.fileUrl,
       optionId: selectedOption?.id || null,
       selectedOptionName: selectedOption?.name || null,
@@ -518,7 +519,7 @@ export default function ProductPage() {
         return prev.map(i => i.id === (relProduct._id || relProduct.id) ? { ...i, quantity: i.quantity + 1 } : i)
       }
       showToast('تمت الإضافة للسلة!')
-      return [...prev, { id: relProduct._id || relProduct.id, slug: relProduct.slug, title: relProduct.title, price, image: relProduct.image, quantity: 1, fileUrl: relProduct.fileUrl }]
+      return [...prev, { id: relProduct._id || relProduct.id, slug: relProduct.slug, title: relProduct.title, price, image: relProduct.image, quantity: 1, fulfillmentMode: relProduct.fulfillmentMode || 'manual', fileUrl: relProduct.fileUrl }]
     })
   }
 
@@ -541,7 +542,7 @@ export default function ProductPage() {
     else { navigator.clipboard.writeText(window.location.href); showToast('تم نسخ الرابط!', 'info') }
   }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#050508]"><div className="text-center"><div className="spinner mx-auto mb-4" /><p className="text-purple-400 font-medium">جاري التحميل...</p></div></div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F14]"><div className="text-center"><div className="spinner mx-auto mb-4" /><p className="text-purple-400 font-medium">جاري التحميل...</p></div></div>
   if (!product) return null
 
   const discountPrice = product.discount ? product.price * (1 - product.discount / 100) : null
@@ -566,7 +567,7 @@ export default function ProductPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-8 sm:mb-12" data-testid="product-layout">
           <div className="space-y-4 sm:space-y-6 order-1">
             <div className="glass-card overflow-hidden rounded-xl sm:rounded-2xl" data-testid="product-image-container">
-              {product.image ? <img src={product.image} alt={product.title} className="w-full aspect-square object-cover" /> : <div className="w-full aspect-square flex items-center justify-center bg-[#0d0d1a]"><Sparkles size={60} className="text-purple-500/30" /></div>}
+              {product.image ? <img src={product.image} alt={product.title} className="w-full aspect-square object-cover" /> : <div className="w-full aspect-square flex items-center justify-center bg-[#111827]"><Sparkles size={60} className="text-purple-500/30" /></div>}
             </div>
             <div className="glass-card p-4 sm:p-6" data-testid="product-description">
               <h3 className="text-white font-bold mb-2 sm:mb-3 flex items-center gap-2 text-sm sm:text-base"><Sparkles size={16} className="text-purple-400" />وصف المنتج</h3>
@@ -590,12 +591,6 @@ export default function ProductPage() {
                 {reviews.length > 0 && <span className="flex items-center gap-1"><Star size={13} className="text-yellow-400" />{(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)} ({reviews.length})</span>}
               </div>
             </div>
-
-            {product.youtubeUrl && (
-              <div className="glass-card overflow-hidden rounded-xl sm:rounded-2xl" data-testid="product-youtube">
-                <div className="aspect-video"><iframe src={`https://www.youtube.com/embed/${extractYouTubeId(product.youtubeUrl)}`} className="w-full h-full" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="Product Video" /></div>
-              </div>
-            )}
 
             {hasCustomizations && (
               <div className="glass-card p-4 sm:p-5 space-y-4" data-testid="product-customizations">
@@ -675,7 +670,7 @@ export default function ProductPage() {
               {reviews.map(review => (
                 <div key={review.id || review._id} className="border-b border-white/5 pb-3 sm:pb-4 last:border-0">
                   <div className="flex items-start gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white font-bold text-xs sm:text-sm flex-shrink-0 overflow-hidden">{review.userImage ? <img src={review.userImage} alt="" className="w-full h-full object-cover" /> : review.userName?.charAt(0) || 'ع'}</div>
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xs sm:text-sm flex-shrink-0 overflow-hidden">{review.userImage ? <img src={review.userImage} alt="" className="w-full h-full object-cover" /> : review.userName?.charAt(0) || 'ع'}</div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-1"><span className="text-white font-medium text-xs sm:text-sm">{review.userName || 'مستخدم'}</span><StarRating rating={review.rating} size={12} /></div>
                       <p className="text-gray-300 text-xs sm:text-sm leading-relaxed">{review.text}</p>
@@ -691,10 +686,4 @@ export default function ProductPage() {
       <Footer settings={settings} />
     </div>
   )
-}
-
-function extractYouTubeId(url) {
-  if (!url) return ''
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?#]+)/)
-  return match ? match[1] : url
 }

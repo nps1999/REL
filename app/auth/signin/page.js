@@ -35,12 +35,12 @@ export default function SignInPage() {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="logo-container">
-              <img src={LOGO_URL} alt="PRESTIGE DESIGNS" className="h-20 w-20 object-contain" />
+              <img src={LOGO_URL} alt="RELOAD STORE" className="h-20 w-20 object-contain" />
             </div>
           </div>
-          <h1 className="text-2xl font-black gradient-text">PRESTIGE DESIGNS</h1>
-          <p className="text-purple-300 text-sm mt-1">برستيج ديزاينز</p>
-          <p className="text-gray-400 text-sm mt-3">وجهة صناع المحتوى الأولى</p>
+          <h1 className="text-2xl font-black gradient-text">RELOAD STORE</h1>
+          <p className="text-purple-300 text-sm mt-1">RELOAD STORE</p>
+          <p className="text-gray-400 text-sm mt-3">RELOAD STORE</p>
         </div>
         
         {/* Sign In Options */}

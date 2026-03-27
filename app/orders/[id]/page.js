@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Package, Check, Clock, Download, ArrowRight, X, Sparkles, Gift } from 'lucide-react'
+import { Package, Check, Clock, Download, ArrowRight, X, Sparkles, Gift, Copy } from 'lucide-react'
 
 const LOGO_URL = 'https://customer-assets.emergentagent.com/job_5bfed863-cc5b-467d-9502-6446bf9a8d11/artifacts/80xsas6y_Asset%205.png'
 
@@ -12,6 +12,7 @@ export default function OrderDetailPage({ params }) {
   const router = useRouter()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [copiedCode, setCopiedCode] = useState('')
   
   useEffect(() => {
     if (status === 'unauthenticated') { router.push('/auth/signin'); return }
@@ -30,6 +31,17 @@ export default function OrderDetailPage({ params }) {
   
   const isPaid = order.paymentStatus === 'paid'
   const isDelivered = order.deliveryStatus === 'delivered'
+
+  const copyCode = async (code) => {
+    if (!code) return
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedCode(code)
+      setTimeout(() => setCopiedCode(''), 1800)
+    } catch {
+      alert('تعذر نسخ الكود')
+    }
+  }
   
   return (
     <div className="min-h-screen bg-grid">
@@ -68,9 +80,14 @@ export default function OrderDetailPage({ params }) {
           <div className="space-y-4">
             {order.items?.map((item, i) => {
               const fileToDeliver = isDelivered ? order.deliveredFiles?.find(f => f.productId === item.id) : null
+              const deliveredCodes = isPaid
+                ? (Array.isArray(order.deliveredCodes) ? order.deliveredCodes : []).filter(c => c.productId === item.id)
+                : []
+              const outOfStockPending = isPaid && order.deliveryStatus === 'pending'
+                && (Array.isArray(order.stockPendingItems) ? order.stockPendingItems : []).some(p => p.productId === item.id)
               return (
                 <div key={i} className="flex items-center gap-3 border-b border-white/5 pb-4 last:border-0">
-                  <div className="w-14 h-14 rounded-xl bg-[#0d0d1a] overflow-hidden flex-shrink-0">
+                  <div className="w-14 h-14 rounded-xl bg-[#111827] overflow-hidden flex-shrink-0">
                     {item.image ? <img src={item.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Sparkles size={16} className="text-purple-500/40" /></div>}
                   </div>
                   <div className="flex-1">
@@ -82,6 +99,26 @@ export default function OrderDetailPage({ params }) {
                     <a href={fileToDeliver.fileUrl} target="_blank" rel="noopener noreferrer" className="px-3 py-2 rounded-xl bg-purple-500/20 text-purple-400 text-xs flex items-center gap-1 hover:bg-purple-500/30 transition-colors">
                       <Download size={12} />تحميل
                     </a>
+                  )}
+                  {deliveredCodes.length > 0 && (
+                    <div className="flex flex-col gap-1 min-w-[220px]">
+                      {deliveredCodes.map((codeItem, codeIndex) => (
+                        <div key={`${codeItem.codeId || codeItem.code}-${codeIndex}`} className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-2 py-1.5">
+                          <span className="text-emerald-300 text-xs font-mono truncate">{codeItem.code}</span>
+                          <button onClick={() => copyCode(codeItem.code)} className="text-emerald-300 hover:text-emerald-100" title="نسخ الكود">
+                            <Copy size={12} />
+                          </button>
+                        </div>
+                      ))}
+                      {copiedCode && deliveredCodes.some(c => c.code === copiedCode) && (
+                        <p className="text-[10px] text-emerald-300">تم نسخ الكود ✅</p>
+                      )}
+                    </div>
+                  )}
+                  {outOfStockPending && (
+                    <span className="px-2 py-1 rounded-lg text-[11px] bg-yellow-500/10 text-yellow-300 border border-yellow-500/20 whitespace-nowrap">
+                      بانتظار التسليم بسبب نفاد المخزون
+                    </span>
                   )}
                 </div>
               )

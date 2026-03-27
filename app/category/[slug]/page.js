@@ -32,10 +32,10 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, wishlistIds = [] 
   return (
     <div className="product-card group cursor-pointer" onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)} data-testid={`product-card-${product.slug || product.id}`}>
       <Link href={`/products/${product.slug || product._id}`}>
-        <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#0d0d1a]">
+        <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#111827]">
           {product.image ? <img src={product.image} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" /> : <div className="w-full h-full flex items-center justify-center"><Sparkles size={40} className="text-purple-500/40" /></div>}
           {product.discount > 0 && <div className="absolute top-2 sm:top-3 right-2 sm:right-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full">-{product.discount}%</div>}
-          {product.featured && <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-gradient-to-r from-violet-600 to-purple-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1"><Zap size={8} /> مميز</div>}
+          {product.featured && <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 sm:py-1 rounded-full flex items-center gap-0.5 sm:gap-1"><Zap size={8} /> مميز</div>}
         </div>
       </Link>
       <div className="p-2.5 sm:p-4">
@@ -59,7 +59,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, wishlistIds = [] 
               <Heart size={13} className={isInWishlist ? 'fill-current' : ''} />
             </button>
             <button onClick={(e) => { e.preventDefault(); onAddToCart(product) }}
-              className="px-2 sm:px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-600 to-purple-500 text-white text-[10px] sm:text-xs font-bold hover:shadow-lg transition-all flex items-center gap-0.5">
+              className="px-2 sm:px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-[10px] sm:text-xs font-bold hover:shadow-lg transition-all flex items-center gap-0.5">
               <Plus size={10} /> سلة
             </button>
           </div>
@@ -96,7 +96,7 @@ function Header({ cart, wishlistCount, session, onCartOpen, settings }) {
   return (
     <header className="glass-header sticky top-0 z-50" data-testid="category-header">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center gap-2 sm:gap-4">
-        <Link href="/" className="flex-shrink-0"><img src={logo} alt="PRESTIGE DESIGNS" className="h-9 sm:h-12 w-auto object-contain" /></Link>
+        <Link href="/" className="flex-shrink-0"><img src={logo} alt="RELOAD STORE" className="h-9 sm:h-12 w-auto object-contain" /></Link>
         <form onSubmit={handleSearch} className="hidden md:block flex-1 max-w-md mx-auto">
           <div className="relative"><input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="ابحث عن تصميم..." className="glass-input pl-10 pr-4 py-2.5 text-sm rounded-full w-full" /><button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Search size={16} /></button></div>
         </form>
@@ -156,7 +156,7 @@ function CartSidebar({ cart, onClose, onRemove, onQuantityChange }) {
             <div className="space-y-4 flex-1 overflow-y-auto mb-6">
               {cart.map(item => (
                 <div key={`${item.id}-${item.optionId || ''}`} className="glass p-3 flex gap-3">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#0d0d1a] flex-shrink-0">{item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Sparkles size={20} className="text-purple-500/40" /></div>}</div>
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-lg overflow-hidden bg-[#111827] flex-shrink-0">{item.image ? <img src={item.image} alt={item.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Sparkles size={20} className="text-purple-500/40" /></div>}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-white text-xs sm:text-sm font-medium line-clamp-2 mb-1">{item.title}</p>
                     <div className="flex items-center justify-between"><span className="text-green-400 font-bold text-sm">${(item.price * item.quantity).toFixed(2)}</span>
@@ -186,8 +186,8 @@ function Footer({ settings }) {
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-8">
           <div>
-            <div className="flex items-center gap-3 mb-4"><img src={logo} alt="PRESTIGE DESIGNS" className="h-10 sm:h-12 w-auto object-contain" /><h2 className="text-lg sm:text-xl font-bold" style={{ background: 'linear-gradient(135deg, #9333ea 0%, #c026d3 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PRESTIGE DESIGNS</h2></div>
-            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">وجهة صناع المحتوى الأولى، نمزج السحر بالفن ليرتقي لذوقك الرفيع.</p>
+            <div className="flex items-center gap-3 mb-4"><img src={logo} alt="RELOAD STORE" className="h-10 sm:h-12 w-auto object-contain" /><h2 className="text-lg sm:text-xl font-bold" style={{ background: 'linear-gradient(135deg, #00FFAF 0%, #00FFD5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>RELOAD STORE</h2></div>
+            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">RELOAD STORE</p>
           </div>
           <div>
             <h3 className="text-white font-bold mb-3 sm:mb-4 text-sm">روابط سريعة</h3>
@@ -199,7 +199,7 @@ function Footer({ settings }) {
             <div className="flex items-center gap-2 glass px-3 py-2 rounded-lg w-fit"><Check size={14} className="text-green-400" /><span className="text-green-400 text-xs sm:text-sm font-medium">هذا المتجر موثوق</span></div>
           </div>
         </div>
-        <div className="border-t border-white/5 pt-4 sm:pt-6"><p className="text-gray-500 text-xs sm:text-sm text-center">&copy; {year} PRESTIGE DESIGNS. جميع الحقوق محفوظة.</p></div>
+        <div className="border-t border-white/5 pt-4 sm:pt-6"><p className="text-gray-500 text-xs sm:text-sm text-center">&copy; {year} RELOAD STORE. جميع الحقوق محفوظة.</p></div>
       </div>
     </footer>
   )
@@ -251,7 +251,7 @@ export default function CategoryPage() {
     setCart(prev => {
       const existing = prev.find(i => i.id === (product._id || product.id))
       if (existing) { showToast('تم تحديث الكمية', 'info'); return prev.map(i => i.id === (product._id || product.id) ? { ...i, quantity: i.quantity + 1 } : i) }
-      showToast('تمت الإضافة للسلة!'); return [...prev, { id: product._id || product.id, slug: product.slug, title: product.title, price, image: product.image, quantity: 1, fileUrl: product.fileUrl }]
+      showToast('تمت الإضافة للسلة!'); return [...prev, { id: product._id || product.id, slug: product.slug, title: product.title, price, image: product.image, quantity: 1, fulfillmentMode: product.fulfillmentMode || 'manual', fileUrl: product.fileUrl }]
     })
   }
 
@@ -268,7 +268,7 @@ export default function CategoryPage() {
   const removeFromCart = (item) => setCart(prev => prev.filter(i => `${i.id}-${i.optionId || ''}` !== `${item.id}-${item.optionId || ''}`))
   const updateQuantity = (item, qty) => { if (qty <= 0) { removeFromCart(item); return } setCart(prev => prev.map(i => `${i.id}-${i.optionId || ''}` === `${item.id}-${item.optionId || ''}` ? { ...i, quantity: qty } : i)) }
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#050508]"><div className="text-center"><div className="spinner mx-auto mb-4" /><p className="text-purple-400 font-medium">جاري التحميل...</p></div></div>
+  if (loading) return <div className="min-h-screen flex items-center justify-center bg-[#0B0F14]"><div className="text-center"><div className="spinner mx-auto mb-4" /><p className="text-purple-400 font-medium">جاري التحميل...</p></div></div>
 
   return (
     <div className="min-h-screen bg-grid" data-testid="category-page">

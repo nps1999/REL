@@ -44,7 +44,7 @@ export default function WishlistPage() {
     if (exists) {
       localStorage.setItem('prestige_cart', JSON.stringify(existing.map(i => i.id === product.id ? { ...i, quantity: i.quantity + 1 } : i)))
     } else {
-      localStorage.setItem('prestige_cart', JSON.stringify([...existing, { id: product.id, title: product.title, price, image: product.image, quantity: 1, fileUrl: product.fileUrl }]))
+      localStorage.setItem('prestige_cart', JSON.stringify([...existing, { id: product.id, title: product.title, price, image: product.image, quantity: 1, fulfillmentMode: product.fulfillmentMode || 'manual', fileUrl: product.fileUrl }]))
     }
     showToast('تمت الإضافة للسلة! 🛒')
   }
@@ -97,7 +97,7 @@ export default function WishlistPage() {
                   </button>
                   
                   <Link href={`/products/${product.slug || product.id}`}>
-                    <div className="aspect-video overflow-hidden rounded-t-xl bg-[#0d0d1a]">
+                    <div className="aspect-video overflow-hidden rounded-t-xl bg-[#111827]">
                       {product.image ? (
                         <img src={product.image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       ) : (
