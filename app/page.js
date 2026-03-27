@@ -67,7 +67,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, wishlistIds = [] 
     >
       <Link href={`/products/${product.slug || product._id}`}>
         {/* Product Image */}
-        <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#0d0d1a]">
+        <div className="relative aspect-square overflow-hidden rounded-t-xl bg-[#111827]">
           {product.image ? (
             <img
               src={product.image}
@@ -89,7 +89,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, wishlistIds = [] 
           
           {/* Featured badge */}
           {product.featured && (
-            <div className="absolute top-3 left-3 bg-gradient-to-r from-violet-600 to-purple-500 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
               <Zap size={10} /> مميز
             </div>
           )}
@@ -130,7 +130,7 @@ function ProductCard({ product, onAddToCart, onToggleWishlist, wishlistIds = [] 
             </button>
             <button
               onClick={(e) => { e.preventDefault(); onAddToCart(product) }}
-              className="px-3 py-2 rounded-full bg-gradient-to-r from-violet-600 to-purple-500 text-white text-xs font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-1"
+              className="px-3 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 text-white text-xs font-bold hover:shadow-lg hover:shadow-purple-500/30 transition-all flex items-center gap-1"
             >
               <Plus size={12} /> سلة
             </button>
@@ -185,7 +185,7 @@ function HeroSlider({ slides = [] }) {
       ))}
       
       {/* Static placeholder when images load */}
-      <div className="w-full aspect-[19/7] bg-gradient-to-br from-[#0d0d1a] to-[#1a0a2e]" />
+      <div className="w-full aspect-[19/7] bg-gradient-to-br from-[#111827] to-[#1a0a2e]" />
       
       {/* Controls */}
       {allSlides.length > 1 && (
@@ -284,7 +284,7 @@ function ReviewsCarousel({ reviews = [] }) {
               
               {/* User */}
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
                   {review.userImage ? (
                     <img src={review.userImage} alt={review.userName} className="w-full h-full object-cover" />
                   ) : (
@@ -384,7 +384,7 @@ function CartSidebar({ cart, onClose, onRemove, onQuantityChange }) {
             <div className="space-y-4 flex-1 overflow-y-auto mb-6">
               {cart.map(item => (
                 <div key={`${item.id}-${item.optionId || ''}`} className="glass p-3 flex gap-3">
-                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-[#0d0d1a] flex-shrink-0">
+                  <div className="w-16 h-16 rounded-lg overflow-hidden bg-[#111827] flex-shrink-0">
                     {item.image ? (
                       <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                     ) : (
@@ -483,7 +483,7 @@ function Header({ cart, wishlistCount, session, onCartOpen, settings }) {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-4">
         {/* Logo - Right */}
         <Link href="/" className="logo-container flex items-center gap-2 flex-shrink-0">
-          <img src={logo} alt="PRESTIGE DESIGNS" className="h-12 w-auto object-contain" />
+          <img src={logo} alt="RELOAD STORE" className="h-12 w-auto object-contain" />
         </Link>
         
         {/* Search - Center */}
@@ -684,12 +684,12 @@ function FeaturedCustomers({ customers = [] }) {
                   {customer.image ? (
                     <img src={customer.image} alt={customer.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center text-white font-bold text-xl">
+                    <div className="w-full h-full bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center text-white font-bold text-xl">
                       {customer.name?.charAt(0)}
                     </div>
                   )}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-violet-600 to-pink-500 rounded-full flex items-center justify-center">
+                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gradient-to-br from-emerald-500 to-cyan-400 rounded-full flex items-center justify-center">
                   <Zap size={10} className="text-white" />
                 </div>
               </div>
@@ -844,15 +844,15 @@ function Footer({ settings }) {
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="PRESTIGE DESIGNS" className="h-12 w-auto object-contain" />
+              <img src={logo} alt="RELOAD STORE" className="h-12 w-auto object-contain" />
               <div>
-                <h2 className="text-xl font-bold" style={{ background: 'linear-gradient(135deg, #9333ea 0%, #c026d3 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  PRESTIGE DESIGNS
+                <h2 className="text-xl font-bold" style={{ background: 'linear-gradient(135deg, #00FFAF 0%, #00FFD5 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  RELOAD STORE
                 </h2>
               </div>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              وجهة صناع المحتوى الأولى، نمزج السحر بالفن ليرتقي لذوقك الرفيع.
+              RELOAD STORE
             </p>
           </div>
           
@@ -901,10 +901,10 @@ function Footer({ settings }) {
         {/* Bottom */}
         <div className="border-t border-white/5 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-gray-500 text-sm">
-            © {year} PRESTIGE DESIGNS. جميع الحقوق محفوظة.
+            © {year} RELOAD STORE. جميع الحقوق محفوظة.
           </p>
           <p className="text-gray-600 text-xs">
-            صُنع بـ 💜 لصناع المحتوى العرب
+            صُنع بـ 💚 للاعبين العرب
           </p>
         </div>
       </div>
@@ -995,6 +995,7 @@ export default function HomePage() {
       originalPrice: product.price,
       image: product.image,
       quantity: 1,
+      fulfillmentMode: product.fulfillmentMode || 'manual',
       fileUrl: product.fileUrl,
       optionId: selectedOption?.id || null,
       selectedOptionName: selectedOption?.name || null,

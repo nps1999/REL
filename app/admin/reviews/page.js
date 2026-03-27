@@ -58,7 +58,7 @@ export default function AdminReviews() {
           filtered.map(review => (
             <div key={review.id} className="glass-card p-4">
               <div className="flex items-start gap-3 mb-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-600 to-pink-500 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center flex-shrink-0">
                   {review.userImage ? <img src={review.userImage} alt="" className="w-full h-full object-cover rounded-full" /> : <span className="text-white font-bold text-sm">{review.userName?.charAt(0)}</span>}
                 </div>
                 <div className="flex-1">

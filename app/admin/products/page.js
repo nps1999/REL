@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import {
   Plus, Edit, Trash2, Eye, EyeOff, Star, X, Check, Image,
-  ChevronDown, ChevronUp, Upload, Palette, Link as LinkIcon,
+  Upload, Palette,
   Package, Search
 } from 'lucide-react'
 
@@ -25,7 +25,7 @@ export default function AdminProducts() {
     price: '',
     discount: '',
     description: '',
-    youtubeUrl: '',
+    fulfillmentMode: 'stock',
     fileUrl: '',
     status: 'active',
     featured: false,
@@ -41,6 +41,10 @@ export default function AdminProducts() {
   const [form, setForm] = useState(emptyForm)
   const [newOption, setNewOption] = useState({ name: '', fileUrl: '' })
   const [saving, setSaving] = useState(false)
+  const [codeState, setCodeState] = useState({ codes: [], summary: { available: 0, reserved: 0, sold: 0 } })
+  const [codesText, setCodesText] = useState('')
+  const [codesLoading, setCodesLoading] = useState(false)
+  const [addingCodes, setAddingCodes] = useState(false)
   
   useEffect(() => {
     Promise.all([
@@ -55,6 +59,8 @@ export default function AdminProducts() {
   const openAdd = () => {
     setForm(emptyForm)
     setEditProduct(null)
+    setCodeState({ codes: [], summary: { available: 0, reserved: 0, sold: 0 } })
+    setCodesText('')
     setShowForm(true)
   }
   
@@ -65,7 +71,76 @@ export default function AdminProducts() {
       customizations: product.customizations || emptyForm.customizations,
     })
     setEditProduct(product)
+    loadProductCodes(product.id)
     setShowForm(true)
+  }
+
+  const loadProductCodes = async (productId) => {
+    if (!productId) return
+    setCodesLoading(true)
+    try {
+      const res = await fetch(`/api/products/${productId}/codes`)
+      const data = await res.json()
+      setCodeState({
+        codes: Array.isArray(data.codes) ? data.codes : [],
+        summary: data.summary || { available: 0, reserved: 0, sold: 0 },
+      })
+    } catch {
+      setCodeState({ codes: [], summary: { available: 0, reserved: 0, sold: 0 } })
+    } finally {
+      setCodesLoading(false)
+    }
+  }
+
+  const handleAddCodes = async () => {
+    if (!editProduct?.id || !codesText.trim()) return
+    setAddingCodes(true)
+    try {
+      const res = await fetch(`/api/products/${editProduct.id}/codes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ codesText }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        showToast(data.error || 'فشل إضافة الأكواد', 'error')
+        return
+      }
+      setCodesText('')
+      showToast(`تمت إضافة ${data.inserted || 0} كود`)
+      await loadProductCodes(editProduct.id)
+    } catch {
+      showToast('فشل إضافة الأكواد', 'error')
+    } finally {
+      setAddingCodes(false)
+    }
+  }
+
+  const handleCodeStatusChange = async (codeId, status) => {
+    if (!editProduct?.id || !codeId) return
+    const res = await fetch(`/api/products/${editProduct.id}/codes/${codeId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status }),
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      showToast(data.error || 'فشل تحديث الكود', 'error')
+      return
+    }
+    await loadProductCodes(editProduct.id)
+  }
+
+  const handleDeleteCode = async (codeId) => {
+    if (!editProduct?.id || !codeId) return
+    if (!confirm('هل تريد حذف هذا الكود؟')) return
+    const res = await fetch(`/api/products/${editProduct.id}/codes/${codeId}`, { method: 'DELETE' })
+    const data = await res.json()
+    if (!res.ok) {
+      showToast(data.error || 'فشل حذف الكود', 'error')
+      return
+    }
+    await loadProductCodes(editProduct.id)
   }
   
   const handleSubmit = async () => {
@@ -222,7 +297,7 @@ export default function AdminProducts() {
           filteredProducts.map(product => (
             <div key={product.id} className="glass-card p-4 flex items-center gap-4">
               {/* Image */}
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#0d0d1a] flex-shrink-0">
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#111827] flex-shrink-0">
                 {product.image ? (
                   <img src={product.image} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -248,6 +323,9 @@ export default function AdminProducts() {
                   {product.categories?.length > 0 && (
                     <span className="text-purple-400 text-xs">{product.categories.length} قسم</span>
                   )}
+                  <span className={`text-xs ${(product.fulfillmentMode || 'manual') === 'stock' ? 'text-emerald-300' : 'text-orange-300'}`}>
+                    {(product.fulfillmentMode || 'manual') === 'stock' ? 'مخزون أكواد' : 'تسليم يدوي'}
+                  </span>
                   {product.orderCount > 0 && (
                     <span className="text-gray-400 text-xs">{product.orderCount} طلب</span>
                   )}
@@ -470,25 +548,26 @@ export default function AdminProducts() {
                 />
               </div>
               
-              {/* YouTube */}
+              {/* Fulfillment mode */}
               <div>
-                <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                  <LinkIcon size={12} /> رابط يوتيوب
-                </label>
-                <input
-                  type="url"
-                  value={form.youtubeUrl}
-                  onChange={e => setForm(prev => ({ ...prev, youtubeUrl: e.target.value }))}
+                <label className="text-gray-400 text-xs mb-1.5 block">نوع التسليم</label>
+                <select
+                  value={form.fulfillmentMode || 'stock'}
+                  onChange={e => setForm(prev => ({ ...prev, fulfillmentMode: e.target.value }))}
                   className="glass-input text-sm"
-                  placeholder="https://youtube.com/watch?v=..."
-                  dir="ltr"
-                />
+                >
+                  <option value="stock">مخزّن (أكواد جاهزة)</option>
+                  <option value="manual">تسليم يدوي</option>
+                </select>
+                <p className="text-gray-500 text-xs mt-1">
+                  المنتجات المخزنة تستخدم أكواد المخزون. التسليم اليدوي يتم من لوحة الطلبات.
+                </p>
               </div>
               
               {/* File URL */}
               <div>
                 <label className="text-gray-400 text-xs mb-1.5 block flex items-center gap-1">
-                  <Upload size={12} /> رابط الملف للتسليم (اختياري)
+                  <Upload size={12} /> رابط ملف يدوي/قديم (اختياري)
                 </label>
                 <div className="flex gap-2">
                   <input
@@ -527,8 +606,67 @@ export default function AdminProducts() {
                     />
                   </label>
                 </div>
-                <p className="text-gray-500 text-xs mt-1">إذا أدخلت رابطاً هنا، سيتم التسليم فوراً عند الدفع</p>
+                <p className="text-gray-500 text-xs mt-1">للمنتجات اليدوية أو للتوافق مع المنتجات القديمة فقط</p>
               </div>
+
+              {editProduct && (form.fulfillmentMode || 'stock') === 'stock' && (
+                <div className="glass p-4 rounded-2xl space-y-3 border border-emerald-500/20">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-emerald-300">إدارة أكواد المخزون</h3>
+                    <div className="text-[11px] text-gray-400 flex items-center gap-2">
+                      <span>متاح: {codeState.summary?.available || 0}</span>
+                      <span>محجوز: {codeState.summary?.reserved || 0}</span>
+                      <span>مباع: {codeState.summary?.sold || 0}</span>
+                    </div>
+                  </div>
+
+                  <textarea
+                    value={codesText}
+                    onChange={e => setCodesText(e.target.value)}
+                    className="glass-input text-xs resize-none"
+                    rows={4}
+                    placeholder={'أدخل كوداً في كل سطر\nABCD-1234-EFGH\nZXCV-9876-QWER'}
+                    dir="ltr"
+                  />
+                  <button
+                    onClick={handleAddCodes}
+                    disabled={addingCodes || !codesText.trim()}
+                    className="btn-primary px-4 py-2 text-xs disabled:opacity-50"
+                  >
+                    {addingCodes ? 'جاري الإضافة...' : 'إضافة أكواد للمخزون'}
+                  </button>
+
+                  <div className="max-h-52 overflow-y-auto space-y-2">
+                    {codesLoading ? (
+                      <p className="text-xs text-gray-500">جاري تحميل الأكواد...</p>
+                    ) : codeState.codes.length === 0 ? (
+                      <p className="text-xs text-gray-500">لا توجد أكواد مخزنة بعد.</p>
+                    ) : (
+                      codeState.codes.slice(0, 120).map(codeItem => (
+                        <div key={codeItem.id} className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-lg px-2 py-1.5">
+                          <span className="text-xs font-mono text-gray-200 flex-1 truncate" dir="ltr">{codeItem.code}</span>
+                          <select
+                            value={codeItem.status || 'available'}
+                            onChange={e => handleCodeStatusChange(codeItem.id, e.target.value)}
+                            className="bg-transparent text-[11px] border border-white/15 rounded px-1.5 py-1"
+                          >
+                            <option value="available">available</option>
+                            <option value="reserved">reserved</option>
+                            <option value="sold">sold</option>
+                          </select>
+                          <button
+                            onClick={() => handleDeleteCode(codeItem.id)}
+                            className="text-red-400 hover:text-red-300"
+                            title="حذف الكود"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
               
               {/* Customizations */}
               <div>

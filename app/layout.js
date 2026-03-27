@@ -3,8 +3,8 @@ import { SessionProvider } from './session-provider'
 import DynamicFavicon from '@/components/DynamicFavicon'
 
 export const metadata = {
-  title: 'PRESTIGE DESIGNS - برستيج ديزاينز',
-  description: 'وجهة صناع المحتوى الأولى - تصاميم واوفرلاي احترافية للستريمرز',
+  title: 'RELOAD STORE',
+  description: 'RELOAD STORE',
   icons: {
     icon: 'https://customer-assets.emergentagent.com/job_5bfed863-cc5b-467d-9502-6446bf9a8d11/artifacts/80xsas6y_Asset%205.png',
   },
@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
       <head>
         <script dangerouslySetInnerHTML={{__html:'window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);'}} />
       </head>
-      <body className="bg-[#050508] text-white">
+      <body className="bg-[#0B0F14] text-[#F9FAFB]">
         <DynamicFavicon />
         <SessionProvider>
           {/* Background orbs */}

@@ -62,7 +62,7 @@ export default function AdminCategories() {
         ) : (
           categories.map(cat => (
             <div key={cat.id} className="glass-card p-4 flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-purple-500 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-400 flex items-center justify-center flex-shrink-0">
                 <span className="text-white font-bold text-sm">{cat.order || 0}</span>
               </div>
               <p className="text-white font-semibold flex-1">{cat.name}</p>

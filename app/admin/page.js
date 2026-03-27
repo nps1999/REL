@@ -83,7 +83,7 @@ export default function AdminDashboard() {
           label="إجمالي الطلبات"
           value={stats?.totalOrders || 0}
           icon={ShoppingBag}
-          color="bg-gradient-to-br from-violet-600 to-purple-500"
+          color="bg-gradient-to-br from-emerald-500 to-cyan-400"
           sub={weeklyGrowth}
         />
         <StatCard

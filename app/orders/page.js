@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Package, Check, X, Clock, Download,
+  Package, Check, X, Clock, Download, Copy,
   ArrowRight, Sparkles, ShoppingCart, Star
 } from 'lucide-react'
 
@@ -23,10 +23,6 @@ const deliveryConfig = {
 }
 
 
-function isInstantReadyItem(item) {
-  return !!(item?.selectedOption?.fileUrl || item?.fileUrl)
-}
-
 function getItemDeliveryFile(order, item) {
   if (!order || !item) return ''
 
@@ -39,20 +35,29 @@ function getItemDeliveryFile(order, item) {
   // لو تم تسليم ملف يدويًا من الإدارة
   if (delivered?.fileUrl) return delivered.fileUrl
 
-  const isPaid = order?.paymentStatus === 'paid'
-  const isInstant = isInstantReadyItem(item)
-
-  // فقط المنتجات الجاهزة وبعد الدفع
-  if (isPaid && isInstant) {
-    return item?.selectedOption?.fileUrl || item?.fileUrl || ''
-  }
-
   return ''
+}
+
+function getItemDeliveredCodes(order, item) {
+  if (!order || !item) return []
+  const deliveredCodes = Array.isArray(order?.deliveredCodes) ? order.deliveredCodes : []
+  return deliveredCodes.filter(code => (
+    code?.productId === item?.id ||
+    (code?.productTitle && code.productTitle === item?.title)
+  ))
+}
+
+function isItemOutOfStockPending(order, item) {
+  if (!order || !item) return false
+  if (order.paymentStatus !== 'paid' || order.deliveryStatus !== 'pending') return false
+  const pending = Array.isArray(order.stockPendingItems) ? order.stockPendingItems : []
+  return pending.some(p => p?.productId === item?.id || p?.productTitle === item?.title)
 }
 
 function isItemDelivered(order, item) {
   if (!order || !item) return false
-  return !!getItemDeliveryFile(order, item)
+  if (getItemDeliveryFile(order, item)) return true
+  return getItemDeliveredCodes(order, item).length > 0
 }
 
 export default function OrdersPage() {
@@ -65,6 +70,7 @@ export default function OrdersPage() {
   const [reviewRating, setReviewRating] = useState(5)
   const [reviewText, setReviewText] = useState('')
   const [submittingReview, setSubmittingReview] = useState(false)
+  const [copiedCode, setCopiedCode] = useState('')
   
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -141,6 +147,17 @@ export default function OrdersPage() {
     }
   }
 
+  const handleCopyCode = async (code) => {
+    if (!code) return
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedCode(code)
+      setTimeout(() => setCopiedCode(''), 1800)
+    } catch {
+      alert('تعذر نسخ الكود')
+    }
+  }
+
   if (status === 'loading' || loading) {
     return <div className="min-h-screen flex items-center justify-center"><div className="spinner" /></div>
   }
@@ -199,10 +216,12 @@ export default function OrdersPage() {
                     {order.items?.map((item, i) => {
                       const itemDelivered = isItemDelivered(order, item)
                       const itemDeliveryFile = getItemDeliveryFile(order, item)
+                      const itemCodes = getItemDeliveredCodes(order, item)
+                      const outOfStockPending = isItemOutOfStockPending(order, item)
 
                       return (
                       <div key={i} className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#0d0d1a] overflow-hidden flex-shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-[#111827] overflow-hidden flex-shrink-0">
                           {item.image ? (
                             <img src={item.image} alt="" className="w-full h-full object-cover" />
                           ) : (
@@ -251,6 +270,30 @@ export default function OrdersPage() {
                             <Download size={12} />
                             تحميل
                           </a>
+                        )}
+                        {order.paymentStatus === 'paid' && itemCodes.length > 0 && (
+                          <div className="flex flex-col gap-1 min-w-[210px]">
+                            {itemCodes.map((codeItem, idx) => (
+                              <div key={`${codeItem.codeId || codeItem.code}-${idx}`} className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 rounded-lg">
+                                <span className="text-emerald-300 text-xs font-mono truncate">{codeItem.code}</span>
+                                <button
+                                  onClick={() => handleCopyCode(codeItem.code)}
+                                  className="text-emerald-300 hover:text-emerald-100"
+                                  title="نسخ الكود"
+                                >
+                                  <Copy size={12} />
+                                </button>
+                              </div>
+                            ))}
+                            {copiedCode && itemCodes.some(c => c.code === copiedCode) && (
+                              <p className="text-[10px] text-emerald-300">تم نسخ الكود ✅</p>
+                            )}
+                          </div>
+                        )}
+                        {outOfStockPending && (
+                          <span className="px-2 py-1 rounded-lg text-[11px] bg-yellow-500/10 text-yellow-300 border border-yellow-500/20 whitespace-nowrap">
+                            بانتظار التسليم بسبب نفاد المخزون
+                          </span>
                         )}
                       </div>
                     )})}

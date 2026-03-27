@@ -99,7 +99,7 @@ async function sendDiscordNotification(order) {
       ],
       timestamp: new Date().toISOString(),
       footer: {
-        text: 'PRESTIGE DESIGNS'
+        text: 'RELOAD STORE'
       }
     };
 
@@ -146,6 +146,101 @@ async function getPath(params) {
   const resolvedParams = await params;
   const pathArr = resolvedParams?.path || [];
   return '/' + pathArr.join('/');
+}
+
+function normalizeFulfillmentMode(mode) {
+  return mode === 'stock' ? 'stock' : 'manual';
+}
+
+async function buildPaidOrderFulfillment(db, order) {
+  const items = Array.isArray(order?.items) ? order.items : [];
+  if (items.length === 0) {
+    return { deliveryStatus: 'pending', deliveredFiles: [], deliveredCodes: [], stockPendingItems: [] };
+  }
+
+  const productIds = [...new Set(items.map(item => item?.id).filter(Boolean))];
+  const products = await db.collection('products').find({ id: { $in: productIds } }).toArray();
+  const productById = new Map(products.map(p => [p.id, p]));
+
+  const deliveredFiles = [];
+  const deliveredCodes = [];
+  const stockPendingItems = [];
+  let allDelivered = true;
+
+  for (const item of items) {
+    if (!item?.id) {
+      allDelivered = false;
+      continue;
+    }
+
+    const product = productById.get(item.id);
+    const quantity = Math.max(1, parseInt(item.quantity || 1, 10));
+    const mode = normalizeFulfillmentMode(product?.fulfillmentMode || item?.fulfillmentMode);
+    const legacyFileUrl = item?.selectedOption?.fileUrl || item?.fileUrl || '';
+
+    if (mode === 'stock') {
+      let deliveredCount = 0;
+      for (let idx = 0; idx < quantity; idx++) {
+        const codeDoc = await db.collection('product_codes').findOneAndUpdate(
+          { productId: item.id, status: 'available' },
+          {
+            $set: {
+              status: 'sold',
+              orderId: order.id,
+              itemProductId: item.id,
+              itemTitle: item.title,
+              soldAt: new Date(),
+              updatedAt: new Date(),
+            }
+          },
+          { sort: { createdAt: 1 }, returnDocument: 'after' }
+        );
+
+        const soldCode = codeDoc?.value || codeDoc;
+        if (soldCode?.code) {
+          deliveredCodes.push({
+            productId: item.id,
+            productTitle: item.title,
+            code: soldCode.code,
+            codeId: soldCode.id,
+            quantityIndex: idx + 1,
+          });
+          deliveredCount += 1;
+        }
+      }
+
+      if (deliveredCount < quantity) {
+        allDelivered = false;
+        stockPendingItems.push({
+          productId: item.id,
+          productTitle: item.title,
+          missing: quantity - deliveredCount,
+        });
+      }
+      continue;
+    }
+
+    // Backward compatibility:
+    // Legacy products (without explicit fulfillment mode) that have direct file URL
+    // keep their old instant delivery behavior.
+    const shouldLegacyAutoDeliver = !product?.fulfillmentMode && !!legacyFileUrl;
+    if (shouldLegacyAutoDeliver) {
+      deliveredFiles.push({
+        productId: item.id,
+        productTitle: item.title,
+        fileUrl: legacyFileUrl,
+      });
+    } else {
+      allDelivered = false;
+    }
+  }
+
+  return {
+    deliveryStatus: allDelivered ? 'delivered' : 'pending',
+    deliveredFiles,
+    deliveredCodes,
+    stockPendingItems,
+  };
 }
 
 // ==================== GET ROUTES ====================
@@ -205,6 +300,25 @@ export async function GET(request, { params }) {
       }
       
       return NextResponse.json(product);
+    }
+
+    if (path.startsWith('/products/') && path.endsWith('/codes') && path.split('/').length === 4) {
+      const admin = await checkAdmin(session);
+      if (!admin) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+
+      const productId = path.split('/')[2];
+      const codes = await db.collection('product_codes')
+        .find({ productId })
+        .sort({ createdAt: -1 })
+        .toArray();
+
+      const summary = codes.reduce((acc, code) => {
+        const status = code.status || 'available';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, { available: 0, reserved: 0, sold: 0 });
+
+      return NextResponse.json({ codes, summary });
     }
 
     // ---- CATEGORIES ----
@@ -448,7 +562,7 @@ export async function GET(request, { params }) {
       });
     }
 
-    return NextResponse.json({ message: 'PRESTIGE DESIGNS API', version: '1.0.0' });
+    return NextResponse.json({ message: 'RELOAD STORE API', version: '1.0.0' });
 
   } catch (error) {
     console.error('API Error:', error);
@@ -476,6 +590,7 @@ export async function POST(request, { params }) {
         id: uuidv4(),
         ...body,
         slug: body.slug || body.title?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || uuidv4(),
+        fulfillmentMode: normalizeFulfillmentMode(body.fulfillmentMode),
         views: 0,
         orderCount: 0,
         status: body.status || 'active',
@@ -486,6 +601,56 @@ export async function POST(request, { params }) {
       
       await db.collection('products').insertOne(product);
       return NextResponse.json(product, { status: 201 });
+    }
+
+    if (path.startsWith('/products/') && path.endsWith('/codes') && path.split('/').length === 4) {
+      const admin = await checkAdmin(session);
+      if (!admin) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+
+      const productId = path.split('/')[2];
+      const rawCodes = Array.isArray(body.codes)
+        ? body.codes
+        : String(body.codesText || '')
+            .split(/\r?\n/)
+            .map(line => line.trim())
+            .filter(Boolean);
+
+      const uniqueCodes = [...new Set(rawCodes.map(code => sanitizeInput(code).trim()).filter(Boolean))];
+      if (uniqueCodes.length === 0) {
+        return NextResponse.json({ error: 'لا توجد أكواد صالحة' }, { status: 400 });
+      }
+
+      const existing = await db.collection('product_codes')
+        .find({ productId, code: { $in: uniqueCodes } })
+        .project({ code: 1, _id: 0 })
+        .toArray();
+      const existingSet = new Set(existing.map(item => item.code));
+      const newCodes = uniqueCodes.filter(code => !existingSet.has(code));
+
+      if (newCodes.length > 0) {
+        await db.collection('product_codes').insertMany(
+          newCodes.map(code => ({
+            id: uuidv4(),
+            productId,
+            code,
+            status: 'available',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }))
+        );
+      }
+
+      const summary = await db.collection('product_codes').aggregate([
+        { $match: { productId } },
+        { $group: { _id: '$status', count: { $sum: 1 } } }
+      ]).toArray();
+
+      return NextResponse.json({
+        success: true,
+        inserted: newCodes.length,
+        skipped: uniqueCodes.length - newCodes.length,
+        summary: summary.reduce((acc, row) => ({ ...acc, [row._id]: row.count }), { available: 0, reserved: 0, sold: 0 }),
+      });
     }
 
     // ---- CREATE CATEGORY ----
@@ -582,28 +747,16 @@ export async function POST(request, { params }) {
       
       const totalAmount = Math.max(0, (body.subtotal || 0) - discountAmount - loyaltyDiscount);
       
-      // العناصر داخل الطلب
-const items = body.items || [];
+      const items = Array.isArray(body.items)
+        ? body.items.map(item => ({
+            ...item,
+            fulfillmentMode: normalizeFulfillmentMode(item?.fulfillmentMode),
+          }))
+        : [];
 
-// المنتجات الجاهزة فقط: أي منتج عنده ملف مباشر
-const instantReadyFiles = items
-  .filter(item => item?.selectedOption?.fileUrl || item?.fileUrl)
-  .map(item => ({
-    productId: item.id,
-    productTitle: item.title,
-    fileUrl: item.selectedOption?.fileUrl || item.fileUrl,
-  }));
+      const isFreeOrder = totalAmount === 0;
 
-// الطلب مجاني / نقاط كاملة
-const isFreeOrder = totalAmount === 0;
-
-// نسلم تلقائيًا فقط إذا كان الطلب مدفوعًا فورًا وكل عناصره جاهزة
-const shouldAutoDeliverNow =
-  isFreeOrder &&
-  items.length > 0 &&
-  instantReadyFiles.length === items.length;
-
-const order = {
+      const order = {
   id: orderId,
   userId: resolvedUserId || 'guest',
   customerInfo: {
@@ -628,20 +781,38 @@ const order = {
   totalAmount,
   paymentStatus: isFreeOrder ? 'paid' : 'pending',
   paymentMethod: isFreeOrder ? (loyaltyDiscount > 0 ? 'loyalty_points' : 'free') : 'paypal',
-  deliveryStatus: shouldAutoDeliverNow ? 'delivered' : 'pending',
-  deliverySeen: !shouldAutoDeliverNow,
+  deliveryStatus: 'pending',
+  deliverySeen: true,
   paypalOrderId: null,
-  deliveredFiles: shouldAutoDeliverNow ? instantReadyFiles : [],
+  deliveredFiles: [],
+  deliveredCodes: [],
+  stockPendingItems: [],
   gift: null,
   storefrontUrl: requestOrigin,
   createdAt: new Date(),
   updatedAt: new Date(),
-  };
+      };
       
       await db.collection('orders').insertOne(order);
       
       // If free order, process it immediately
       if (isFreeOrder) {
+        const fulfillment = await buildPaidOrderFulfillment(db, order);
+
+        await db.collection('orders').updateOne(
+          { id: orderId },
+          {
+            $set: {
+              deliveryStatus: fulfillment.deliveryStatus,
+              deliverySeen: fulfillment.deliveryStatus !== 'delivered',
+              deliveredFiles: fulfillment.deliveredFiles,
+              deliveredCodes: fulfillment.deliveredCodes,
+              stockPendingItems: fulfillment.stockPendingItems,
+              updatedAt: new Date(),
+            }
+          }
+        );
+
         // Update product order counts
         for (const item of items) {
           await db.collection('products').updateOne(
@@ -678,10 +849,24 @@ const order = {
         }
 
         // Send confirmation email
-        await sendOrderConfirmationEmail(order);
+        await sendOrderConfirmationEmail({
+          ...order,
+          deliveryStatus: fulfillment.deliveryStatus,
+          deliverySeen: fulfillment.deliveryStatus !== 'delivered',
+          deliveredFiles: fulfillment.deliveredFiles,
+          deliveredCodes: fulfillment.deliveredCodes,
+          stockPendingItems: fulfillment.stockPendingItems,
+        });
         
         // Send Discord notification
-        await sendDiscordNotification(order);
+        await sendDiscordNotification({
+          ...order,
+          deliveryStatus: fulfillment.deliveryStatus,
+          deliverySeen: fulfillment.deliveryStatus !== 'delivered',
+          deliveredFiles: fulfillment.deliveredFiles,
+          deliveredCodes: fulfillment.deliveredCodes,
+          stockPendingItems: fulfillment.stockPendingItems,
+        });
         
         return NextResponse.json({ 
           orderId: order.id, 
@@ -727,20 +912,7 @@ const order = {
           const loyaltyConfig = settings?.loyaltyConfig || { pointsPerDollar: 1, dollarPerPoint: 0.01 };
           const earnedPoints = Math.floor(order.totalAmount * loyaltyConfig.pointsPerDollar);
           
-          const instantReadyFiles = Array.isArray(order.items)
-  ? order.items
-      .filter(item => item?.selectedOption?.fileUrl || item?.fileUrl)
-      .map(item => ({
-        productId: item.id,
-        productTitle: item.title,
-        fileUrl: item.selectedOption?.fileUrl || item.fileUrl,
-      }))
-  : [];
-
-const shouldAutoDeliverAfterPayment =
-  Array.isArray(order.items) &&
-  order.items.length > 0 &&
-  instantReadyFiles.length === order.items.length;
+          const fulfillment = await buildPaidOrderFulfillment(db, order);
 
 await db.collection('orders').updateOne(
   { id: orderId },
@@ -748,11 +920,11 @@ await db.collection('orders').updateOne(
     $set: {
       paymentStatus: 'paid',
       paymentMethod: order.paymentMethod || 'paypal',
-      deliveryStatus: shouldAutoDeliverAfterPayment ? 'delivered' : (order.deliveryStatus || 'pending'),
-      deliverySeen: shouldAutoDeliverAfterPayment ? false : (order.deliverySeen === true),
-      deliveredFiles: shouldAutoDeliverAfterPayment
-        ? instantReadyFiles
-        : (Array.isArray(order.deliveredFiles) ? order.deliveredFiles : []),
+      deliveryStatus: fulfillment.deliveryStatus,
+      deliverySeen: fulfillment.deliveryStatus !== 'delivered',
+      deliveredFiles: fulfillment.deliveredFiles,
+      deliveredCodes: fulfillment.deliveredCodes,
+      stockPendingItems: fulfillment.stockPendingItems,
       earnedPoints,
       updatedAt: new Date(),
     }
@@ -803,7 +975,17 @@ await db.collection('orders').updateOne(
           }
           
           // Send confirmation email
-          const updatedOrder = { ...order, paymentStatus: 'paid', paymentMethod: order.paymentMethod || 'paypal', earnedPoints };
+          const updatedOrder = {
+            ...order,
+            paymentStatus: 'paid',
+            paymentMethod: order.paymentMethod || 'paypal',
+            deliveryStatus: fulfillment.deliveryStatus,
+            deliverySeen: fulfillment.deliveryStatus !== 'delivered',
+            deliveredFiles: fulfillment.deliveredFiles,
+            deliveredCodes: fulfillment.deliveredCodes,
+            stockPendingItems: fulfillment.stockPendingItems,
+            earnedPoints,
+          };
           await sendOrderConfirmationEmail(updatedOrder);
           
           // Send Discord notification
@@ -813,7 +995,7 @@ await db.collection('orders').updateOne(
             success: true, 
             orderId,
             earnedPoints,
-            deliveryStatus: order.deliveryStatus,
+            deliveryStatus: fulfillment.deliveryStatus,
           });
         }
       }
@@ -1065,6 +1247,30 @@ export async function PUT(request, { params }) {
     let body = {};
     try { body = await request.json(); } catch (e) {}
 
+    // ---- UPDATE PRODUCT CODE ----
+    if (path.startsWith('/products/') && path.includes('/codes/') && path.split('/').length === 5) {
+      const admin = await checkAdmin(session);
+      if (!admin) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
+
+      const [, , productId, , codeId] = path.split('/');
+      const nextStatus = body.status;
+      if (!['available', 'reserved', 'sold'].includes(nextStatus)) {
+        return NextResponse.json({ error: 'حالة الكود غير صالحة' }, { status: 400 });
+      }
+
+      const existingCode = await db.collection('product_codes').findOne({ id: codeId, productId });
+      if (!existingCode) return NextResponse.json({ error: 'الكود غير موجود' }, { status: 404 });
+      if (existingCode.status === 'sold' && nextStatus !== 'sold') {
+        return NextResponse.json({ error: 'لا يمكن تغيير كود مبيع' }, { status: 400 });
+      }
+
+      await db.collection('product_codes').updateOne(
+        { id: codeId, productId },
+        { $set: { status: nextStatus, updatedAt: new Date() } }
+      );
+      return NextResponse.json({ success: true });
+    }
+
     // ---- UPDATE PRODUCT ----
     if (path.startsWith('/products/') && path.split('/').length === 3) {
       const admin = await checkAdmin(session);
@@ -1074,6 +1280,9 @@ export async function PUT(request, { params }) {
       
       // Remove immutable fields
       const { _id, id, createdAt, ...updateData } = body;
+      if (updateData.fulfillmentMode !== undefined) {
+        updateData.fulfillmentMode = normalizeFulfillmentMode(updateData.fulfillmentMode);
+      }
       
       const result = await db.collection('products').updateOne(
         { id: productId },
@@ -1153,21 +1362,7 @@ if (body.paymentStatus === 'paid' && order.paymentStatus !== 'paid') {
   const settings = await db.collection('settings').findOne({ key: 'main' });
   const loyaltyConfig = settings?.loyaltyConfig || { pointsPerDollar: 1 };
   const earnedPoints = Math.floor(order.totalAmount * loyaltyConfig.pointsPerDollar);
-
-  const instantReadyFiles = Array.isArray(order.items)
-    ? order.items
-        .filter(item => item?.selectedOption?.fileUrl || item?.fileUrl)
-        .map(item => ({
-          productId: item.id,
-          productTitle: item.title,
-          fileUrl: item.selectedOption?.fileUrl || item.fileUrl,
-        }))
-    : [];
-
-  const shouldAutoDeliverAfterPayment =
-    Array.isArray(order.items) &&
-    order.items.length > 0 &&
-    instantReadyFiles.length === order.items.length;
+  const fulfillment = await buildPaidOrderFulfillment(db, order);
 
   await db.collection('orders').updateOne(
     { id: orderId },
@@ -1176,11 +1371,11 @@ if (body.paymentStatus === 'paid' && order.paymentStatus !== 'paid') {
         ...body,
         paymentStatus: 'paid',
         paymentMethod: body.paymentMethod || order.paymentMethod || 'manual',
-        deliveryStatus: shouldAutoDeliverAfterPayment ? 'delivered' : (order.deliveryStatus || 'pending'),
-        deliverySeen: shouldAutoDeliverAfterPayment ? false : (order.deliverySeen === true),
-        deliveredFiles: shouldAutoDeliverAfterPayment
-          ? instantReadyFiles
-          : (Array.isArray(order.deliveredFiles) ? order.deliveredFiles : []),
+        deliveryStatus: fulfillment.deliveryStatus,
+        deliverySeen: fulfillment.deliveryStatus !== 'delivered',
+        deliveredFiles: fulfillment.deliveredFiles,
+        deliveredCodes: fulfillment.deliveredCodes,
+        stockPendingItems: fulfillment.stockPendingItems,
         earnedPoints,
         updatedAt: new Date(),
       }
@@ -1200,10 +1395,10 @@ if (body.paymentStatus === 'paid' && order.paymentStatus !== 'paid') {
     earnedPoints,
     paymentStatus: 'paid',
     paymentMethod: body.paymentMethod || order.paymentMethod || 'manual',
-    deliveryStatus: shouldAutoDeliverAfterPayment ? 'delivered' : (order.deliveryStatus || 'pending'),
-    deliveredFiles: shouldAutoDeliverAfterPayment
-      ? instantReadyFiles
-      : (Array.isArray(order.deliveredFiles) ? order.deliveredFiles : []),
+    deliveryStatus: fulfillment.deliveryStatus,
+    deliveredFiles: fulfillment.deliveredFiles,
+    deliveredCodes: fulfillment.deliveredCodes,
+    stockPendingItems: fulfillment.stockPendingItems,
   });
 
   return NextResponse.json({ success: true });
@@ -1391,9 +1586,21 @@ export async function DELETE(request, { params }) {
     const admin = await checkAdmin(session);
     if (!admin) return NextResponse.json({ error: 'غير مصرح' }, { status: 403 });
 
+    if (path.startsWith('/products/') && path.includes('/codes/') && path.split('/').length === 5) {
+      const [, , productId, , codeId] = path.split('/');
+      const code = await db.collection('product_codes').findOne({ id: codeId, productId });
+      if (!code) return NextResponse.json({ error: 'الكود غير موجود' }, { status: 404 });
+      if (code.status === 'sold') {
+        return NextResponse.json({ error: 'لا يمكن حذف كود تم بيعه' }, { status: 400 });
+      }
+      await db.collection('product_codes').deleteOne({ id: codeId, productId });
+      return NextResponse.json({ success: true });
+    }
+
     if (path.startsWith('/products/')) {
       const id = path.split('/')[2];
       await db.collection('products').deleteOne({ id });
+      await db.collection('product_codes').deleteMany({ productId: id, status: { $ne: 'sold' } });
       return NextResponse.json({ success: true });
     }
 
